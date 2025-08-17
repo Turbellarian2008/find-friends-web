@@ -1,0 +1,47 @@
+{
+    "activities": {
+        "bsonType": "object",
+        "required": ["name", "location", "totalPeople", "date", "timeSlot", "creator", "area"],
+        "properties": {
+            "name": {
+                "bsonType": "string",
+                "description": "活动名称"
+            },
+            "location": {
+                "bsonType": "string",
+                "description": "活动地点"
+            },
+            "area": {
+                "bsonType": "string",
+                "description": "活动所在区"
+            },
+            
+            "totalPeople": {
+                "bsonType": "int",
+                "minimum": 1,
+                "description": "活动总人数"
+            },
+            "joinedPeople": {
+                "bsonType": "int",
+                "minimum": 0,
+                "description": "已报名人数"
+            },
+            "date": {
+                "bsonType": "string",
+                "description": "活动日期（YYYY-MM-DD）"
+            },
+            "timeSlot": {
+                "bsonType": "string",
+                "description": "活动时间段（如 7:00-8:00）"
+            },
+            "createdAt": {
+                "bsonType": "timestamp",
+                "description": "创建时间"
+            },
+            "creator":{
+                "bsonType":"string",
+                "description":"创建者"
+            }
+        }
+    }
+}

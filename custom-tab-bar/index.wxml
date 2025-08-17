@@ -1,0 +1,21 @@
+<view class="tabbar" style="padding-bottom: {{safeBottom}}px;">
+  <!-- 首页 -->
+  <view class="tab-item" data-index="0" bindtap="switchTab">
+    <image class="tab-icon" src="{{ icons.home }}" mode="aspectFit" />
+    <text class="tab-text">首页</text>
+  </view>
+
+  <!-- 中间创建（凸起） -->
+  <view class="tab-item center-wrapper" data-index="1" bindtap="switchTab">
+    <view class="center-button">
+      <image class="center-icon" src="{{ icons.create }}" mode="aspectFit" />
+    </view>
+    <text class="tab-text center-text">创建</text>
+  </view>
+
+  <!-- 我的 -->
+  <view class="tab-item" data-index="2" bindtap="switchTab">
+    <image class="tab-icon" src="{{ icons.me }}" mode="aspectFit" />
+    <text class="tab-text">我的</text>
+  </view>
+</view>

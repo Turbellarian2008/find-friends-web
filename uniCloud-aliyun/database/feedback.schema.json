@@ -1,0 +1,15 @@
+// 文档教程: https://uniapp.dcloud.net.cn/uniCloud/schema
+{
+	"bsonType": "object",
+	"required": ["username", "content"],
+	"properties": {
+		"username": {
+			"bsonType": "string",
+			"description": "username"
+		},
+		"content":{
+			"bsonType": "string",
+			"description": "content of feedback"
+		}
+	}
+}

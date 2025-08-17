@@ -1,0 +1,47 @@
+
+.joined-container {
+  min-height: 100vh;
+  background-color: #f5f5f5;
+  padding: 20rpx;
+  box-sizing: border-box;
+}
+.header {
+  font-size: 36rpx;
+  font-weight: bold;
+  color: #333;
+  margin: 20rpx 0 24rpx;
+}
+.loading, .empty {
+  text-align: center;
+  color: #999;
+  padding: 60rpx 0;
+}
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
+}
+.card {
+  background: #fff;
+  border-radius: 16rpx;
+  padding: 28rpx;
+  box-shadow: 0 4rpx 12rpx rgba(0,0,0,0.05);
+}
+.title {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #333;
+}
+.meta {
+  margin-top: 12rpx;
+  display: flex;
+  gap: 24rpx;
+  color: #666;
+  font-size: 26rpx;
+}
+.address {
+  margin-top: 10rpx;
+  color: #666;
+  font-size: 26rpx;
+}
+

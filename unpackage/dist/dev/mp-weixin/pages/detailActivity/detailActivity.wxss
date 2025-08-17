@@ -1,0 +1,145 @@
+
+.detail-container {
+  padding: 30rpx;
+  background-color: #f5f7fa;
+  min-height: 100vh;
+}
+.title {
+  font-size: 40rpx;
+  font-weight: bold;
+  color: #333;
+  text-align: center;
+  margin: 30rpx 0;
+  padding-bottom: 20rpx;
+  border-bottom: 1rpx solid #eee;
+}
+.detail-card {
+  background-color: #fff;
+  border-radius: 16rpx;
+  padding: 30rpx;
+  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.05);
+  margin-bottom: 40rpx;
+}
+.detail-item {
+  margin-bottom: 25rpx;
+  display: flex;
+  flex-wrap: wrap;
+}
+.detail-item.description {
+  flex-direction: column;
+}
+.detail-label {
+  font-size: 30rpx;
+  font-weight: bold;
+  color: #333;
+  margin-right: 10rpx;
+  line-height: 1.6;
+}
+.detail-value {
+  font-size: 28rpx;
+  color: #666;
+  line-height: 1.6;
+  flex: 1;
+}
+.join-button {
+  margin-top: 40rpx;
+  height: 90rpx;
+  background: linear-gradient(135deg, #4CAF50, #66BB6A);
+  color: white;
+  border-radius: 12rpx;
+  font-size: 32rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 6rpx 20rpx rgba(76, 175, 80, 0.3);
+}
+.join-button:active {
+  opacity: 0.9;
+}
+
+/* 退出活动按钮：红色样式覆盖 */
+.leave-button {
+  background: linear-gradient(135deg, #F56C6C, #F78989) !important;
+  box-shadow: 0 6rpx 20rpx rgba(245, 108, 108, 0.3) !important;
+}
+.owner-actions {
+  display: flex;
+  gap: 20rpx;
+  margin-top: 40rpx;
+}
+.edit-button {
+  flex: 1;
+  height: 90rpx;
+  background: #409EFF;
+  color: #fff;
+  border-radius: 12rpx;
+  font-size: 32rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.delete-button {
+  flex: 1;
+  height: 90rpx;
+  background: #F56C6C;
+  color: #fff;
+  border-radius: 12rpx;
+  font-size: 32rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 参与者列表样式 */
+.participants-card {
+  margin-top: 30rpx;
+  background-color: #fff;
+  border-radius: 16rpx;
+  padding: 24rpx;
+  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.05);
+}
+.participants-title {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 16rpx;
+}
+.participants-item {
+  font-size: 28rpx;
+  color: #555;
+  padding: 10rpx 0;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+.participants-item:last-child {
+  border-bottom: none;
+}
+
+/* 类别标签样式（详情页） */
+.category-tag {
+  display: inline-block;
+  padding: 8rpx 20rpx;
+  font-size: 24rpx;
+  font-weight: 600;
+  line-height: 1;
+  color: #0A84FF;
+  background-color: rgba(10, 132, 255, 0.12);
+  border: 1rpx solid rgba(10, 132, 255, 0.35);
+  border-radius: 30rpx;
+  -webkit-backdrop-filter: saturate(140%) blur(2rpx);
+          backdrop-filter: saturate(140%) blur(2rpx);
+}
+
+/* 标题行：类型在左，名称在右（整体居中） */
+.title-row {
+  display: flex;
+  align-items: baseline; /* 与标题文字基线对齐，保证同一水平 */
+  justify-content: flex-start; /* 与下方卡片左侧对齐 */
+  gap: 12rpx;
+  margin: 30rpx 0 10rpx 0;
+}
+.title-category {
+  margin-right: 8rpx;
+  -webkit-transform: translateY(-2px);
+          transform: translateY(-2px);
+}
+

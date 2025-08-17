@@ -1,0 +1,53 @@
+{
+  "pages": [
+    "pages/login/login",
+    "pages/register/register",
+    "pages/privacy/privacy",
+    "pages/feedback/feedback",
+    "pages/user/user",
+    "pages/userInfo/userInfo",
+    "pages/index/index",
+    "pages/createActivity/createActivity",
+    "pages/detailActivity/detailActivity",
+    "pages/editActivity/editActivity",
+    "pages/myActivities/myActivities",
+    "pages/joinedActivities/joinedActivities",
+    "pages/settings/settings"
+  ],
+  "subPackages": [],
+  "window": {
+    "navigationBarTextStyle": "black",
+    "navigationBarTitleText": "找搭子",
+    "navigationBarBackgroundColor": "#F8F8F8",
+    "backgroundColor": "#F8F8F8"
+  },
+  "tabBar": {
+    "custom": true,
+    "color": "#7A7E83",
+    "selectedColor": "#007AFF",
+    "borderStyle": "black",
+    "backgroundColor": "#ffffff",
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "text": "首页",
+        "iconPath": "static/icons/首页.png",
+        "selectedIconPath": "static/icons/首页-选中.png"
+      },
+      {
+        "pagePath": "pages/createActivity/createActivity",
+        "text": "创建",
+        "iconPath": "static/icons/创建活动.png",
+        "selectedIconPath": "static/icons/创建活动.png"
+      },
+      {
+        "pagePath": "pages/user/user",
+        "text": "我的",
+        "iconPath": "static/icons/个人中心.png",
+        "selectedIconPath": "static/icons/个人中心-选中.png"
+      }
+    ]
+  },
+  "permission": {},
+  "usingComponents": {}
+}

@@ -1,0 +1,17 @@
+{
+  "include": ["**/*"],
+  "exclude": [
+    "node_modules",
+    "unpackage",
+    "uni_modules/**/uniCloud*"
+  ],
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {},
+    "checkJs": false
+  },
+  "vueCompilerOptions": {
+    "target": 3,
+    "globalTypesPath": "./.volar/global.d.ts"
+  }
+}

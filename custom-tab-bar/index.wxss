@@ -1,0 +1,82 @@
+.tabbar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0; /* 紧贴底部，避免遮挡更多内容 */
+  height: 100rpx;
+  background: #ffffff;
+  border-top: 1rpx solid #eaeaea;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  z-index: 9999;
+}
+
+.tab-item {
+  flex: 1;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #7A7E83;
+}
+
+.tab-item.active .tab-text {
+  color: #007AFF;
+}
+
+.tab-icon {
+  width: 48rpx;
+  height: 48rpx;
+}
+
+.tab-text {
+  margin-top: 6rpx;
+  font-size: 22rpx;
+}
+
+/* 中间凸起按钮 */
+.center-wrapper {
+  position: relative;
+  /* 不整体上移，避免文字跟随被拉高 */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 0 0 auto; /* 不参与拉伸，避免被等分导致变形 */
+}
+
+.center-button {
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 50%; /* 仅用于保证可点区域为圆形，但不着色 */
+  background: transparent; /* 不要蓝色底 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: none; /* 去掉阴影，只保留图片 */
+  overflow: hidden; /* 防溢出导致的视觉变形 */
+  flex: 0 0 auto;  /* 禁止被压缩或拉伸 */
+  transform: translateY(-28rpx); /* 仅把图片按钮整体上移，增强凸起 */
+}
+
+.center-button.active {
+  background: transparent; /* 选中也不显示底色 */
+}
+
+.center-icon {
+  width: 88rpx; /* 放大图片本身，制造“突出”视觉 */
+  height: 88rpx;
+  border-radius: 50%; /* 若图片本身需裁切为圆形 */
+}
+
+.center-text {
+  margin-top: 6rpx;
+  color: #7A7E83;
+  font-size: 22rpx; /* 与其他 tab 文案一致 */
+  transform: translateY(-19px); /* 文案上移 15px，与两侧文案对齐 */
+}
+
+.center-text.active {
+  color: #007AFF;
+}

@@ -1,0 +1,20 @@
+
+.page { height: 100vh;
+}
+.content { padding: 32rpx; color: #333;
+}
+.title { font-size: 40rpx; font-weight: 600; text-align: center; margin-bottom: 12rpx;
+}
+.update-time { font-size: 24rpx; color: #999; text-align: center; margin-bottom: 28rpx;
+}
+.section { margin-bottom: 28rpx;
+}
+.section-title { font-size: 30rpx; font-weight: 600; margin-bottom: 12rpx;
+}
+.p { font-size: 26rpx; line-height: 1.7; color: #444;
+}
+.footer { text-align: center; color: #666; font-size: 24rpx; margin-top: 20rpx;
+}
+.privacy-link { color: #007AFF;
+}
+
