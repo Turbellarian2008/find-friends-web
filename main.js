@@ -1,4 +1,8 @@
 import App from './App'
+// #ifdef H5
+import { setupUniCloudHttpAdapter } from './common/cloudAdapter'
+setupUniCloudHttpAdapter('') // 同源调用 Cloudflare Pages Functions (/api/*)
+// #endif
 
 // #ifndef VUE3
 import Vue from 'vue'
