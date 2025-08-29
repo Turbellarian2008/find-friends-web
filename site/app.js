@@ -673,24 +673,43 @@
               <input id="date" class="input date-native" type="date" min="${today}" max="9999-12-31" placeholder="YYYY年MM月DD日" />
             `}
           </div>
-          <div class="row column" id="timeRowStart">
-            <label class="field-label label-mobile" for="timeSlot">开始时间</label>
+          <div class="row column">
+            <label class="field-label" for="timeSlot">开始时间</label>
             <div class="time-proxy segments" aria-label="开始时间">
-              <input id="sHour" class="input time-seg" type="tel" inputmode="numeric" maxlength="2" placeholder="HH" aria-label="时" />
+              <input id="sHour" class="input time-seg" type="tel" inputmode="numeric" maxlength="2" placeholder="HH" aria-label="时" 
+                oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0,2); validateTimeInput(this, 0, 23, '小时必须在0-23之间')" />
               <span class="seg-sep">:</span>
-              <input id="sMin" class="input time-seg" type="tel" inputmode="numeric" maxlength="2" placeholder="MM" aria-label="分" />
+              <input id="sMin" class="input time-seg" type="tel" inputmode="numeric" maxlength="2" placeholder="MM" aria-label="分" 
+                oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0,2); validateTimeInput(this, 0, 59, '分钟必须在0-59之间')" />
             </div>
-            <input id="timeSlot" class="input time-native" type="time" step="60" min="00:00" max="23:59" lang="zh-CN" placeholder="HH:MM" />
+            <div id="startTimeError" class="error-message" style="color: #ef4444; font-size: 12px; margin-top: 4px; display: none;"></div>
           </div>
-          <div class="row column" id="timeRowEnd">
-            <label class="field-label label-mobile" for="endtime">结束时间</label>
+          <div class="row column">
+            <label class="field-label" for="endtime">结束时间</label>
             <div class="time-proxy segments" aria-label="结束时间">
-              <input id="eHour" class="input time-seg" type="tel" inputmode="numeric" maxlength="2" placeholder="HH" aria-label="时" />
+              <input id="eHour" class="input time-seg" type="tel" inputmode="numeric" maxlength="2" placeholder="HH" aria-label="时" 
+                oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0,2); validateTimeInput(this, 0, 23, '小时必须在0-23之间')" />
               <span class="seg-sep">:</span>
-              <input id="eMin" class="input time-seg" type="tel" inputmode="numeric" maxlength="2" placeholder="MM" aria-label="分" />
+              <input id="eMin" class="input time-seg" type="tel" inputmode="numeric" maxlength="2" placeholder="MM" aria-label="分" 
+                oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0,2); validateTimeInput(this, 0, 59, '分钟必须在0-59之间')" />
             </div>
-            <input id="endtime" class="input time-native" type="time" step="60" min="00:00" max="23:59" lang="zh-CN" placeholder="HH:MM" />
+            <div id="endTimeError" class="error-message" style="color: #ef4444; font-size: 12px; margin-top: 4px; display: none;"></div>
           </div>
+          <script>
+            function validateTimeInput(input, min, max, errorMessage) {
+              const value = parseInt(input.value) || 0;
+              const errorElement = input.closest('.row.column').querySelector('.error-message');
+              
+              if (value < min || value > max) {
+                errorElement.textContent = errorMessage;
+                errorElement.style.display = 'block';
+                input.setCustomValidity(errorMessage);
+              } else {
+                errorElement.style.display = 'none';
+                input.setCustomValidity('');
+              }
+            }
+          </script>
 
           <div class="row column">
             <label class="field-label" for="contact">联系方式</label>
@@ -776,6 +795,73 @@
           Api.toast('获取手机号失败');
         }
       });
+    // ===== 表单提交处理 =====
+    document.getElementById('submit').addEventListener('click', async (e) => {
+      e.preventDefault();
+      
+      // 收集表单数据
+      const activityData = {
+        name: document.getElementById('name').value.trim(),
+        type: document.getElementById('type').value,
+        province: document.getElementById('province').value,
+        city: document.getElementById('city').value,
+        area: document.getElementById('area').value,
+        location: document.getElementById('location').value.trim(),
+        date: document.getElementById('date').value,
+        begin_time: `${document.getElementById('sHour').value.padStart(2, '0')}:${document.getElementById('sMin').value.padStart(2, '0')}`,
+        timeSlot: `${document.getElementById('sHour').value.padStart(2, '0')}:${document.getElementById('sMin').value.padStart(2, '0')}`,
+        endtime: `${document.getElementById('eHour').value.padStart(2, '0')}:${document.getElementById('eMin').value.padStart(2, '0')}`,
+        contact: document.getElementById('contact').value.trim(),
+        totalPeople: document.getElementById('totalPeople').value,
+        description: document.getElementById('description').value.trim(),
+        creatorId: Api.getUser()?.userId || ''
+      };
+
+      // 验证必填字段
+      // 验证必填字段
+      if (!activityData.name) return Api.toast('请输入活动名称');
+      if (!activityData.type) return Api.toast('请选择活动类型');
+      if (!activityData.province || !activityData.city || !activityData.area) return Api.toast('请选择完整的地区信息');
+      if (!activityData.location) return Api.toast('请输入详细地址');
+      if (!activityData.date) return Api.toast('请选择日期');
+      
+      // 验证开始时间
+      const sHour = parseInt(document.getElementById('sHour').value, 10);
+      const sMin = parseInt(document.getElementById('sMin').value, 10);
+      if (isNaN(sHour) || sHour < 0 || sHour > 23) return Api.toast('开始时间的小时数必须在0-23之间');
+      if (isNaN(sMin) || sMin < 0 || sMin > 59) return Api.toast('开始时间的分钟数必须在0-59之间');
+      
+      // 验证结束时间
+      const eHour = parseInt(document.getElementById('eHour').value, 10);
+      const eMin = parseInt(document.getElementById('eMin').value, 10);
+      if (isNaN(eHour) || eHour < 0 || eHour > 23) return Api.toast('结束时间的小时数必须在0-23之间');
+      if (isNaN(eMin) || eMin < 0 || eMin > 59) return Api.toast('结束时间的分钟数必须在0-59之间');
+      
+      // 验证结束时间是否晚于开始时间
+      const startTime = sHour * 60 + sMin;
+      const endTime = eHour * 60 + eMin;
+      if (endTime <= startTime) return Api.toast('结束时间必须晚于开始时间');
+      
+      if (!activityData.contact) return Api.toast('请输入联系方式');
+      if (!/^1[3-9]\d{9}$/.test(activityData.contact)) return Api.toast('请输入正确的手机号');
+      if (!activityData.totalPeople) return Api.toast('请选择活动人数');
+      if (!activityData.description) return Api.toast('请输入活动说明');
+
+      try {
+        // 调用API创建活动
+        const result = await Api.post('uploadActivity', activityData);
+        if (result && result.code === 0) {
+          Api.toast('活动创建成功');
+          location.hash = '#/my-activities';
+        } else {
+          Api.toast(result.msg || '创建活动失败');
+        }
+      } catch (error) {
+        console.error('创建活动失败:', error);
+        Api.toast('创建活动失败，请稍后重试');
+      }
+    });
+
     // ===== 活动类型按钮绑定 =====
     const typeGroup = document.getElementById('typeGroup');
     const typeHidden = document.getElementById('type');
