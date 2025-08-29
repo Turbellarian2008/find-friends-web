@@ -1,0 +1,363 @@
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica, Arial, sans-serif; background: #f6f7f9; color: #222; }
+.container { max-width: 720px; margin: 0 auto; padding: 16px; }
+.card { background: #fff; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,.06); padding: 16px; margin: 12px 0; }
+.title { font-size: clamp(20px, 2.6vw, 24px); font-weight: 600; margin: 0 0 24px; }
+.row { display: flex; gap: 8px; align-items: center; margin: 14px 0; }
+/* 纵向表单布局用于桌面端显示标题 */
+.row.column { flex-direction: column; align-items: stretch; }
+/* 去掉卡片顶部和底部多余间距 */
+.card .row:first-of-type { margin-top: 0; }
+.card .row:last-of-type { margin-bottom: 0; }
+.clickable { cursor: pointer; }
+.clickable:hover { background: #f8fafc; border-radius: 8px; }
+.field-label { display: none; font-size: 16px; color: #6b7280; margin-bottom: 6px; }
+.input { width: 100%; padding: 10px 12px; border: 1px solid #e5e7eb; border-radius: 8px; font-size: 14px; }
+.button { display: inline-block; padding: 10px 16px; background: #007aff; color: #fff; border: none; border-radius: 999px; font-size: 14px; cursor: pointer; }
+.button:disabled { background: #9ec8ff; cursor: not-allowed; }
+.nav { position: sticky; top: 0; background: #fff; box-shadow: 0 1px 6px rgba(0,0,0,.06); padding: 10px 16px; z-index: 10; }
+
+/* 在移动端显示字段标签，提升可用性 */
+@media (max-width: 767px) {
+  .field-label { display: block; font-size: 14px; margin-bottom: 4px; }
+}
+.nav a { margin-right: 12px; color: #007aff; text-decoration: none; }
+.nav .login-text { margin-right: 12px; }
+.list { list-style: none; padding: 0; margin: 0; }
+.list li { padding: 18px 0; border-bottom: 1px solid #f0f0f0; line-height: 1.6; }
+/* 逐行间距更舒适 */
+.list li > * + * { margin-top: 8px; }
+/* 标题更醒目（兼容 item-title 容器和 strong 标签） */
+.list li .item-title, .list li strong { font-size: 18px; font-weight: 600; line-height: 1.35; letter-spacing: .2px; }
+/* 元信息稍大且更易读 */
+.list .meta { font-size: 14px; color: #4b5563; }
+/* 列表内的按钮与文本保持间距 */
+.list li .button { display: inline-block; margin-top: 8px; }
+.meta { color: #666; font-size: 12px; }
+.toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: 24px; background: rgba(0,0,0,.85); color: #fff; padding: 8px 12px; border-radius: 8px; font-size: 13px; box-shadow: 0 4px 12px rgba(0,0,0,.18); }
+.toast.center { top: 50%; bottom: auto; transform: translate(-50%, -50%); }
+.toast.lg { font-size: 16px; padding: 12px 16px; border-radius: 12px; }
+
+/* 地址弹窗: 已回退，删除相关样式 */
+
+/* 活动类型：按钮组样式 */
+.type-group { display: flex; flex-wrap: wrap; gap: 8px; }
+.type-btn {
+  padding: 8px 12px;
+  border: 1px solid #e5e7eb;
+  background: #fff;
+  border-radius: 999px;
+  font-size: 14px;
+  color: #111;
+  cursor: pointer;
+}
+.type-btn:hover { background: #f8fafc; }
+.type-btn.active {
+  background: #e6f0ff;
+  border-color: #3b82f6;
+  color: #1d4ed8;
+}
+
+/* 移动端日期代理输入（文本输入 + 右侧日历图标） */
+.date-proxy { position: relative; display: block; }
+.date-proxy .input { padding-right: 40px; }
+.icon-cal { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); color: #666; }
+.icon-cal:hover { color: #111; }
+
+/* 默认（移动端）：使用代理输入，隐藏原生 date 输入 */
+.date-proxy { display: block; }
+.date-native { display: none; }
+/* 移动端隐藏日历图标（不显示） */
+.date-proxy .icon-cal { display: none; }
+
+/* 分段日期样式（移动端） */
+.date-proxy.segments { display: flex; align-items: center; gap: 8px; }
+.date-seg { flex: 1; text-align: center; }
+.seg-sep { color: #9ca3af; user-select: none; }
+.date-proxy.segments .icon-cal { margin-left: 4px; cursor: default; opacity: 0.7; }
+
+/* 分段时间样式（移动端） */
+.time-proxy.segments { display: flex; align-items: center; gap: 8px; }
+.time-seg { flex: 1; text-align: center; }
+/* 手机端：显示时间代理，隐藏原生 time */
+.time-proxy { display: block; }
+.time-native { display: none; }
+
+/* 手机端：开始/结束时间的小标题强制显示 */
+.label-mobile { display: block; font-size: 16px; }
+
+/* 桌面端：显示上方小标题，隐藏占位符文本 */
+@media (min-width: 768px) {
+  .field-label { display: block; }
+  .input::placeholder { color: transparent; }
+  /* 桌面端：显示原生 date 输入，隐藏代理输入 */
+  .date-proxy { display: none; }
+  .date-native { display: block; }
+  /* 桌面端：显示原生 time 输入，隐藏代理输入 */
+  .time-proxy { display: flex; }
+  .time-native { display: none; }
+  /* 隐藏 WebKit 内核的 AM/PM 字段以呈现 24 小时制 */
+  .time-native::-webkit-datetime-edit-ampm-field { display: none; }
+  /* 去掉清除/上下按钮，避免误触 */
+  .time-native::-webkit-clear-button { display: none; }
+  .time-native::-webkit-inner-spin-button { display: none; }
+}
+
+/* 桌面端日期输入占位提示（不改变布局，仅叠加显示） */
+.date-native-wrap { position: relative; }
+.date-native-hint {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #9ca3af; /* 浅灰 */
+  pointer-events: none;
+  font-size: 14px;
+}
+
+/* ===== 全局细节优化（移动端与桌面端） ===== */
+/* 输入框交互增强 */
+.input {
+  transition: border-color .2s ease, box-shadow .2s ease, background-color .2s ease;
+  background-color: #fff;
+  -webkit-appearance: none;
+  appearance: none;
+  display: block;
+  line-height: 1.5;
+  min-height: 44px; /* 触控高度 */
+  height: 44px;     /* 修复 iOS Safari 在 password 态高度变矮 */
+}
+.input:hover { border-color: #d1d5db; }
+.input:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59,130,246,.15);
+  background-color: #fff;
+}
+.input[disabled] { background: #f3f4f6; color: #9ca3af; cursor: not-allowed; }
+
+/* iOS 安全掩码：使用 -webkit-text-security 伪密码显示（黑点） */
+.input.masked {
+  -webkit-text-security: disc;
+}
+
+/* 针对 iOS Safari：密码态也强制一致的高度与内边距，避免切换类型时重排导致变矮及无法输入 */
+input[type="password"].input,
+input[type="text"].input {
+  height: 44px;
+  min-height: 44px;
+}
+input[type="password"].input {
+  padding-top: 12px;
+  padding-bottom: 12px;
+  caret-color: #111827;
+  -webkit-user-select: text;
+  user-select: text; /* 标准属性，修复 lint 警告 */
+}
+
+/* 小标题色彩微调（更清晰的对比度） */
+.field-label { color: #4b5563; }
+
+/* 卡片质感优化 */
+.card { border: 1px solid #f1f5f9; }
+.card:hover { box-shadow: 0 6px 18px rgba(0,0,0,.08); }
+
+/* 列表悬停反馈 */
+.list li { transition: background-color .15s ease; }
+.list li:hover { background: #f8fafc; }
+
+/* 桌面端：列表排版进一步增大字号与间距 */
+@media (min-width: 1024px) {
+  .list li { padding: 20px 0; }
+  .list li .item-title, .list li strong { font-size: 20px; }
+  .list .meta { font-size: 15px; }
+}
+
+/* 过期标记徽章 */
+.badge { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 12px; line-height: 1; vertical-align: middle; }
+.badge-expired { background: #f59e0b; color: #fff; }
+.badge-type {
+  background: #e6f0ff;
+  color: #1d4ed8;
+  border: 1px solid #93c5fd;
+  margin-left: 6px;
+}
+
+/* 按钮交互与层次 */
+.button {
+  transition: background-color .2s ease, box-shadow .2s ease, transform .05s ease;
+  box-shadow: 0 1px 2px rgba(0,0,0,.06);
+}
+.button:hover { background: #1a73e8; box-shadow: 0 2px 6px rgba(26,115,232,.25); }
+.button:active { transform: translateY(1px); box-shadow: 0 1px 3px rgba(0,0,0,.2); }
+.button:focus-visible { outline: none; box-shadow: 0 0 0 3px rgba(59,130,246,.30); }
+
+/* 轻量响应式微调 */
+@media (max-width: 767px) {
+  .container { padding: 14px; }
+  .row { margin: 12px 0; }
+  .card { border-radius: 12px; }
+}
+@media (min-width: 1024px) {
+  .container { max-width: 840px; }
+  .card { padding: 20px; }
+}
+
+/* ===== 详情页信息排版与按钮间距 ===== */
+#detail strong { display: block; font-size: 20px; line-height: 1.3; margin-bottom: 8px; }
+#detail .meta { font-size: 14px; line-height: 1.7; margin-top: 6px; }
+.detail-actions { gap: 12px !important; margin-top: 16px !important; }
+
+/* 详情页参与者列表样式 */
+.section-title { font-size: 16px; font-weight: 600; margin-top: 12px; margin-bottom: 8px; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { display: inline-block; padding: 6px 10px; background: #f3f4f6; border: 1px solid #e5e7eb; border-radius: 999px; font-size: 12px; color: #374151; }
+
+/* 列表形式的参与者显示 */
+.participants-list { list-style: none; margin: 8px 0 0 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.participant-item { display: flex; align-items: center; justify-content: space-between; padding: 10px 12px; background: #fafafa; border: 1px solid #e5e7eb; border-radius: 10px; }
+.participant-name { font-size: 14px; color: #111827; }
+.participant-right { display: inline-flex; align-items: center; gap: 8px; }
+.participant-phone { font-size: 12px; color: #6b7280; }
+.badge-creator { margin-left: 8px; padding: 2px 8px; background: #fde68a; color: #92400e; border: 1px solid #f59e0b; border-radius: 999px; font-size: 12px; }
+
+/* ====== 追加：移动端响应式与细节优化 ====== */
+/* 视口安全区（刘海/底部 Home 条） */
+body { padding-left: env(safe-area-inset-left); padding-right: env(safe-area-inset-right); }
+.container { padding-bottom: calc(16px + env(safe-area-inset-bottom)); }
+
+/* 顶部导航在窄屏自动换行并保持右侧登录信息可见 */
+.nav { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.nav a { line-height: 1.8; }
+.nav > span[style*="float:right"] { margin-left: auto; float: none !important; }
+
+/* 图片与媒体适配 */
+img, video { max-width: 100%; height: auto; }
+
+/* 小屏更大的触控区域与排版密度优化 */
+@media (max-width: 480px) {
+  .container { padding: 12px; }
+  .row { gap: 6px; }
+  .input { padding: 12px 14px; font-size: 16px; } /* iOS 避免缩放 */
+  .button { padding: 12px 18px; font-size: 16px; }
+  .nav { padding: 8px 12px; }
+  .list li { padding: 14px 0; }
+}
+
+/* ===== 移动端底部固定操作栏（详情页） ===== */
+/* 默认隐藏，移动端展示 */
+.action-bar { display: none; }
+@media (max-width: 767px) {
+  /* 底部操作栏样式 */
+  .action-bar {
+    position: fixed;
+    left: 0; right: 0; bottom: 0;
+    display: flex;
+    gap: 10px;
+    padding: 10px 16px calc(10px + env(safe-area-inset-bottom));
+    background: rgba(255,255,255,0.92);
+    backdrop-filter: saturate(180%) blur(12px);
+    box-shadow: 0 -4px 16px rgba(0,0,0,.08);
+    z-index: 20;
+  }
+  .action-bar .button { flex: 1; border-radius: 12px; }
+  /* 有底部栏时给详情页预留空间，避免内容被遮挡 */
+  .detail-page.container { padding-bottom: calc(96px + env(safe-area-inset-bottom)); }
+  /* 移动端隐藏顶部按钮行，避免重复 */
+  .detail-actions { display: none !important; }
+}
+
+/* 更灵活的容器宽度（大屏略放大） */
+@media (min-width: 1280px) { .container { max-width: 960px; } }
+
+/* 减少动画以照顾 prefers-reduced-motion 用户 */
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; animation: none !important; }
+}
+
+/* ===== 带图标输入框 ===== */
+.field-with-icon { position: relative; display: flex; align-items: center; }
+.field-with-icon .icon-left {
+  position: absolute; left: 10px; width: 18px; height: 18px; opacity: .7; pointer-events: none;
+}
+.field-with-icon .icon-right {
+  position: absolute; right: 10px; width: 20px; height: 20px; opacity: .8; cursor: pointer;
+}
+.input-icon-left { padding-left: 36px !important; }
+.input-icon-right { padding-right: 40px !important; }
+
+/* ===== 顶部 设置 下拉 ===== */
+.nav { position: relative; }
+.settings-wrap { position: relative; display: inline-block; margin: 0 8px; }
+.settings-link { color: #3b82f6; cursor: pointer; user-select: none; }
+.settings-link:hover { text-decoration: underline; }
+.dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  margin-left: 8px; /* 让展开菜单的左上角位于“设置”文字处，整体向右偏移一点 */
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+  padding: 6px 0;
+  min-width: 140px;
+  display: none;
+  z-index: 1000;
+}
+.dropdown.open { display: block; }
+.dropdown a { display: block; padding: 8px 12px; color: #111827; text-decoration: none; }
+.dropdown a:hover { background: #f3f4f6; }
+
+/* ===== 隐藏浏览器自带的密码可见性按钮，避免与自定义眼睛图标重复 ===== */
+input[type="password"]::-ms-reveal,
+input[type="password"]::-ms-clear { display: none; }
+/* Safari/WebKit 部分环境的自动填充/装饰按钮
+   注意：在 iOS Safari 上对这些元素使用 display:none 可能导致输入框变形/无法输入
+   因此改为透明 + 禁用交互，而不是直接 display:none */
+input[type="password"]::-webkit-credentials-auto-fill-button {
+  opacity: 0;
+  pointer-events: none;
+}
+input[type="password"]::-webkit-textfield-decoration-container {
+  opacity: 0;
+  pointer-events: none;
+}
+/* 确保外观一致 */
+.input.input-icon-right { -webkit-appearance: none; appearance: none; }
+
+/* ===== 筛选半弹窗样式 ===== */
+.filter-wrap {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.25);
+  display: none;
+  align-items: flex-start;
+  justify-content: center;
+  z-index: 1000;
+  padding: 16px;
+}
+.filter-wrap.open { display: flex; }
+.filter-panel {
+  width: 100%;
+  max-width: 720px;
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 10px 30px rgba(0,0,0,.12);
+  padding: 16px;
+  transform: translateY(-8px);
+  animation: flt-enter .15s ease-out both;
+}
+@keyframes flt-enter { from { opacity: 0; transform: translateY(-12px); } to { opacity: 1; transform: translateY(0); } }
+.filter-section { margin-bottom: 12px; }
+.filter-title { font-weight: 600; margin-bottom: 6px; color: #374151; }
+
+@media (max-width: 480px) {
+  .filter-panel { border-radius: 12px; padding: 14px; }
+}
+
+/* 让筛选面板内的 time 输入在所有断点下都可见，且显示 24 小时制 */
+.filter-panel .time-native { display: block !important; }
+.filter-panel input[type="time"]::-webkit-datetime-edit-ampm-field { display: none; }
+.filter-panel input[type="time"]::-webkit-clear-button { display: none; }
+.filter-panel input[type="time"]::-webkit-inner-spin-button { display: none; }

@@ -1,5 +1,0 @@
-#/ API routes should be handled by Cloudflare Pages Functions, not redirected to SPA
-/api/*  /api/:splat  200
-
-# SPA fallback for all other routes
-/*   /index.html   200

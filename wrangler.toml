@@ -1,0 +1,20 @@
+name = "find-friends-web"
+compatibility_date = "2025-08-18"
+pages_build_output_dir = "site"
+
+# D1 绑定：登录后我会自动填充 database_id
+# 绑定名必须与代码一致：env.db
+[[d1_databases]]
+binding = "db"
+database_name = "find-friends-db"
+database_id = "88fed4b4-d315-44de-a9d3-2798e5d76953"
+
+# KV 绑定：敏感词词库（供 Functions 读取）
+[[kv_namespaces]]
+binding = "SENSITIVE_LEXICON"
+id = "5730245f6c664d6f9d3f0ff37e04405c"
+
+# KV 绑定：地区映射（省市区）
+[[kv_namespaces]]
+binding = "AREAS_MAP"
+id = "69eba1b777ab424b9561f2893d91e2ea"

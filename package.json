@@ -1,0 +1,12 @@
+{
+  "name": "find-friends-web",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build:lexicon": "node scripts/build-lexicon.js",
+    "build:areas": "node scripts/build-areas.js",
+    "upload:lexicon": "wrangler kv key put --binding=SENSITIVE_LEXICON all.json --path ./dist/lexicon/all.json --content-type application/json",
+    "upload:areas": "wrangler kv key put --binding=AREAS_MAP regions.json --path ./dist/areas.json"
+  },
+  "devDependencies": {}
+}
