@@ -1,0 +1,29 @@
+name = "find-friends-web-dev"
+compatibility_date = "2025-08-18"
+pages_build_output_dir = "site"
+
+# 使用远程D1数据库
+[[d1_databases]]
+binding = "db"
+database_name = "find-friends-db"
+database_id = "88fed4b4-d315-44de-a9d3-2798e5d76953"
+
+# 使用远程KV存储：敏感词词库
+[[kv_namespaces]]
+binding = "SENSITIVE_LEXICON"
+id = "5730245f6c664d6f9d3f0ff37e04405c"
+
+# 使用远程KV存储：地区映射
+[[kv_namespaces]]
+binding = "AREAS_MAP"
+id = "69eba1b777ab424b9561f2893d91e2ea"
+
+# 开发服务器配置
+[dev]
+port = 8787
+ip = "127.0.0.1"
+local_protocol = "http"
+
+# 环境变量
+[vars]
+NODE_ENV = "development"

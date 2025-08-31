@@ -26,6 +26,33 @@ export async function onRequestPost({ request, env }) {
   if (!/^\d{11}$/.test(String(payload.contact||''))) return json({ code: 422, message: '联系方式需为11位手机号' });
   if (!payload.totalPeople || payload.totalPeople <= 0) return json({ code: 422, message: '活动人数非法' });
 
+  // 违禁词后端校验（仅对传入字段检查）
+  async function hasSensitive(text){
+    if (!text) return false;
+    try {
+      const raw = env && env.SENSITIVE_LEXICON && await env.SENSITIVE_LEXICON.get('all.json');
+      const list = raw ? JSON.parse(raw) : [];
+      const s = String(text).toLowerCase();
+      for (const w of Array.isArray(list)?list:[]) {
+        const ww = String(w||'').toLowerCase();
+        if (ww && s.includes(ww)) return true;
+      }
+    } catch(_){}
+    return false;
+  }
+  const pairs = [
+    ['活动名称', payload.name],
+    ['详细地址', payload.location],
+    ['活动类型', payload.type],
+    ['联系方式', payload.contact],
+    ['详细说明', payload.description]
+  ];
+  for (const [label, val] of pairs) {
+    if (typeof val !== 'undefined' && await hasSensitive(val)) {
+      return json({ code: 422, message: `${label}包含违禁词，请修改后再提交` });
+    }
+  }
+
   const row = await env.db.prepare('SELECT id, creator_id FROM activities WHERE id = ?').bind(id).first();
   if (!row) return json({ code: 404, message: '活动不存在' });
   const isOwner = String(row.creator_id||'') === String(userId);

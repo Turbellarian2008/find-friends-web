@@ -21,6 +21,23 @@ export async function onRequestPost({ request, env }) {
   }
   if (!user) return json({ code: 404, message: '用户不存在' });
 
+  // 违禁词后端校验
+  async function hasSensitive(text){
+    if (!text) return false;
+    try {
+      const raw = env && env.SENSITIVE_LEXICON && await env.SENSITIVE_LEXICON.get('all.json');
+      const list = raw ? JSON.parse(raw) : [];
+      const s = String(text).toLowerCase();
+      for (const w of Array.isArray(list)?list:[]) {
+        const ww = String(w||'').toLowerCase();
+        if (ww && s.includes(ww)) return true;
+      }
+    } catch(_){}
+    return false;
+  }
+  if (hasNickname && await hasSensitive(nickname)) return json({ code: 422, message: '昵称包含违禁词，请修改后再提交' });
+  if (hasBio && await hasSensitive(bio)) return json({ code: 422, message: '个人简介包含违禁词，请修改后再提交' });
+
   // 确保 iphone_num 列存在
   if (hasPhone) {
     try { await env.db.prepare('ALTER TABLE users ADD COLUMN iphone_num TEXT').run(); } catch(_) {}

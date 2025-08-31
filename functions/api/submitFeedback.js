@@ -3,6 +3,22 @@ export async function onRequestPost({ request, env }) {
   if (!userId && !username) return json({ code: 401, message: '未登录或缺少用户标识（userId/username）' });
   if (!content || String(content).trim().length < 10) return json({ code: 400, message: '反馈内容至少10个字' });
 
+  // 违禁词后端校验
+  async function hasSensitive(text){
+    if (!text) return false;
+    try {
+      const raw = env && env.SENSITIVE_LEXICON && await env.SENSITIVE_LEXICON.get('all.json');
+      const list = raw ? JSON.parse(raw) : [];
+      const s = String(text).toLowerCase();
+      for (const w of Array.isArray(list)?list:[]) {
+        const ww = String(w||'').toLowerCase();
+        if (ww && s.includes(ww)) return true;
+      }
+    } catch(_){}
+    return false;
+  }
+  if (await hasSensitive(content)) return json({ code: 422, message: '反馈内容包含违禁词，请修改后再提交' });
+
   const now = Date.now();
   // 运行时迁移：为反馈表添加 user_uid 列（如果不存在）
   try { await env.db.prepare('ALTER TABLE feedback ADD COLUMN user_uid TEXT').run(); } catch(_) {}

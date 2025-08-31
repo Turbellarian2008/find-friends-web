@@ -76,11 +76,8 @@
     }
   }
 
-  // 违禁词检测（DFA，数据源：site/sensitive.json；最终以后端为准）
-  // 预加载 DFA（不阻塞 UI，首次使用也会已就绪）
-  if (window.Sensitive && typeof window.Sensitive.ensureReady === 'function') {
-    window.Sensitive.ensureReady();
-  }
+  // 违禁词检测提示：为减少首页首屏请求量，不在全局预加载；
+  // 在需要时（创建/修改页）由 assertClean 的后端复检兜底。
   function assertClean(text, fieldName){
   try {
     if (!text) return true;
@@ -93,6 +90,12 @@
     return true;
   } catch (_) { return true; }
 }
+
+// 在输入页尽早、非阻塞地加载违禁词表
+function ensureSensitiveReadySoon(){
+  try { if (window.Sensitive && window.Sensitive.ensureReady) window.Sensitive.ensureReady(); } catch(_){}
+}
+
   function route() {
     const { path, query } = getQuery();
     switch (path) {
@@ -101,6 +104,7 @@
       case '/changePassword': return renderChangePassword();
       case '/activity': return renderActivityDetail(query.id || '');
       case '/create': return renderCreate();
+      case '/modifyactivity': return renderModifyActivity(query.id || '');
       case '/my': return renderMyActivities();
       case '/joined': return renderJoinedActivities();
       case '/user': return renderUserInfo();
@@ -530,6 +534,8 @@
     if (bindJoinM) bindJoinM.onclick = () => doJoinLeave('joinActivity');
     if (bindLeave) bindLeave.onclick = () => doJoinLeave('leaveActivity');
     if (bindLeaveM) bindLeaveM.onclick = () => doJoinLeave('leaveActivity');
+    if (bindEdit) bindEdit.onclick = () => { location.hash = `#/modifyactivity?id=${encodeURIComponent(id)}`; };
+    if (bindEditM) bindEditM.onclick = () => { location.hash = `#/modifyactivity?id=${encodeURIComponent(id)}`; };
 
     const doDelete = async () => {
       if (!confirm('确定删除该活动？')) return;
@@ -548,45 +554,8 @@
     const doEdit = async () => {
       const u = Api.getUser();
       if (!u || !u.userId) { Api.toast('请先登录'); setTimeout(()=> location.hash = '#/login', 300); return; }
-      try {
-        // 取当前数据作为默认值
-        const curName = data.name || '';
-        const curArea = data.area || '';
-        const curLoc = data.location || '';
-        const curDate = data.date || '';
-        const curBegin = data.begin_time || '';
-        const curEnd = data.end_time || data.endtime || '';
-        const curType = data.type || '';
-        const curContact = data.contact || '';
-        const curTotal = String(data.total_people || data.totalPeople || '');
-        const curDesc = data.description || '';
-
-        const name = prompt('活动名称', curName);
-        if (name === null) return; // cancel
-        if (!assertClean(name, '活动名称')) return;
-        const area = prompt('所在区', curArea); if (area === null) return;
-        const location = prompt('详细地址', curLoc); if (location === null) return; if (!assertClean(location, '详细地址')) return;
-        const dateStr = prompt('日期(YYYY-MM-DD)', curDate); if (dateStr === null) return;
-        const begin_time = prompt('开始时间(HH:MM)', curBegin); if (begin_time === null) return;
-        const endtime = prompt('结束时间(HH:MM)', curEnd); if (endtime === null) return;
-        const type = prompt('类型', curType); if (type === null) return;
-        const contact = prompt('联系方式(11位手机号)', curContact); if (contact === null) return;
-        const totalPeopleStr = prompt('人数(整数)', curTotal); if (totalPeopleStr === null) return;
-        const description = prompt('详细说明', curDesc); if (description === null) return; if (!assertClean(description, '详细说明')) return;
-
-        if (!/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/.test(dateStr)) { Api.toast('日期格式不正确'); return; }
-        if (!/^\d{2}:\d{2}$/.test(begin_time)) { Api.toast('开始时间格式不正确'); return; }
-        if (!/^\d{2}:\d{2}$/.test(endtime)) { Api.toast('结束时间格式不正确'); return; }
-        if (!/^\d{11}$/.test(String(contact))) { Api.toast('手机号格式不正确'); return; }
-        const totalPeople = Number(totalPeopleStr);
-        if (!Number.isInteger(totalPeople) || totalPeople <= 0) { Api.toast('人数不正确'); return; }
-
-        const payload = { id, userId: u.userId, name: name.trim(), area: area.trim(), location: location.trim(), date: dateStr, begin_time, endtime, type: (type||'').trim(), contact: String(contact).trim(), totalPeople, description: description.trim() };
-        const res = await Api.post('updateActivity', payload);
-        if (res.code !== 0) throw new Error(res.message || '更新失败');
-        Api.toast('已更新');
-        setTimeout(()=> route(), 500);
-      } catch (e) { Api.toast(e.message || '更新失败'); }
+      // 跳转到修改页
+      location.hash = `#/modifyactivity?id=${encodeURIComponent(id)}`;
     };
     if (bindEdit) bindEdit.onclick = doEdit;
     if (bindEditM) bindEditM.onclick = doEdit;
@@ -623,6 +592,8 @@
 
   async function renderCreate() {
     if (!requireLogin()) return;
+    // 预加载违禁词表（不阻塞渲染）
+    ensureSensitiveReadySoon();
     const today = (()=>{ const d=new Date(); const y=d.getFullYear(); const m=String(d.getMonth()+1).padStart(2,'0'); const da=String(d.getDate()).padStart(2,'0'); return `${y}-${m}-${da}`; })();
     const typeOptions = ['室内运动','户外运动','音乐','艺术','娱乐','其他'];
     const districts = ['越秀区','荔湾区','海珠区','天河区','白云区','黄埔区','番禺区','花都区','南沙区','从化区','增城区'];
@@ -1057,6 +1028,143 @@
 
 
 
+  async function renderModifyActivity(id) {
+    if (!requireLogin()) return;
+    if (!id) { Api.toast('无效的活动ID'); setTimeout(()=> location.hash = '#/home', 500); return; }
+    // 预加载违禁词表
+    ensureSensitiveReadySoon();
+
+    // 获取活动详情用于预填
+    let data;
+    try {
+      const res = await Api.post('getActivityDetail', { id, requesterId: Api.getUserId && Api.getUserId() });
+      if (res.code !== 0) throw new Error(res.message || '加载失败');
+      data = res.data || {};
+    } catch (e) { Api.toast(e.message || '加载失败'); setTimeout(()=> location.hash = '#/home', 800); return; }
+
+    // 复用创建页 UI
+    await renderCreate();
+
+    // 标题与按钮
+    document.title = '修改活动 - 找搭子';
+    const t = document.querySelector('.card .title');
+    if (t) t.textContent = '修改活动';
+    const submitBtnOrig = document.getElementById('submit');
+    let submitBtn = submitBtnOrig;
+    if (submitBtnOrig) {
+      // 移除 renderCreate 中通过 addEventListener 绑定的监听
+      const cloned = submitBtnOrig.cloneNode(true);
+      submitBtnOrig.parentNode.replaceChild(cloned, submitBtnOrig);
+      submitBtn = cloned;
+      submitBtn.textContent = '更新';
+    }
+
+    // 预填表单
+    const setVal = (id, v) => { const el = document.getElementById(id); if (el) el.value = v || ''; };
+    setVal('name', data.name || '');
+    setVal('type', data.type || '');
+    // 类型按钮高亮
+    const typeBtns = Array.from(document.querySelectorAll('#typeGroup .type-btn'));
+    typeBtns.forEach(btn=>{
+      const on = (btn.getAttribute('data-value') === String(data.type||''));
+      btn.classList.toggle('active', !!on);
+      btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+    });
+
+    // 地区（省市区）
+    const provEl = document.getElementById('province');
+    const cityEl = document.getElementById('city');
+    const areaEl = document.getElementById('area');
+    if (provEl && cityEl && areaEl) {
+      provEl.value = data.province || '';
+      provEl.dispatchEvent(new Event('change'));
+      setTimeout(()=>{
+        cityEl.value = data.city || '';
+        cityEl.dispatchEvent(new Event('change'));
+        setTimeout(()=>{
+          areaEl.value = data.area || '';
+        }, 0);
+      }, 0);
+    }
+
+    setVal('location', data.location || '');
+
+    // 日期
+    setVal('date', data.date || '');
+    const ySeg = document.getElementById('ySeg');
+    const mSeg = document.getElementById('mSeg');
+    const dSeg = document.getElementById('dSeg');
+    if (ySeg && mSeg && dSeg && data.date) {
+      const m = String(data.date).match(/^(\d{4})-(\d{2})-(\d{2})$/);
+      if (m) { ySeg.value = m[1]; mSeg.value = m[2]; dSeg.value = m[3]; }
+    }
+
+    // 时间
+    const bt = String(data.begin_time||'');
+    const et = String(data.end_time||data.endtime||'');
+    const sHour = document.getElementById('sHour');
+    const sMin = document.getElementById('sMin');
+    const eHour = document.getElementById('eHour');
+    const eMin = document.getElementById('eMin');
+    if (sHour) sHour.value = bt.slice(0,2) || '';
+    if (sMin) sMin.value = bt.slice(3,5) || '';
+    if (eHour) eHour.value = et.slice(0,2) || '';
+    if (eMin) eMin.value = et.slice(3,5) || '';
+
+    // 其他
+    setVal('contact', data.contact || '');
+    const totalSel = document.getElementById('totalPeople');
+    if (totalSel) totalSel.value = String(data.totalPeople || data.total_people || '');
+    setVal('description', data.description || '');
+
+    // 覆盖提交：调用更新接口
+    if (submitBtn) submitBtn.onclick = async () => {
+      const u = Api.getUser();
+      if (!u || !u.userId) return Api.toast('请先登录');
+
+      const name = (document.getElementById('name').value||'').trim();
+      const type = (document.getElementById('type').value||'');
+      const province = (document.getElementById('province').value||'');
+      const city = (document.getElementById('city').value||'');
+      const area = (document.getElementById('area').value||'');
+      const locationDetail = (document.getElementById('location').value||'').trim();
+      const date = (document.getElementById('date').value||'');
+      const begin_time = `${String(document.getElementById('sHour').value||'').padStart(2,'0')}:${String(document.getElementById('sMin').value||'').padStart(2,'0')}`;
+      const endtime = `${String(document.getElementById('eHour').value||'').padStart(2,'0')}:${String(document.getElementById('eMin').value||'').padStart(2,'0')}`;
+      const contact = (document.getElementById('contact').value||'').trim();
+      const totalPeople = Number(document.getElementById('totalPeople').value || 0);
+      const description = (document.getElementById('description').value||'').trim();
+
+      if (!name) return Api.toast('请输入活动名称');
+      if (!type) return Api.toast('请选择活动类型');
+      if (!province || !city || !area) return Api.toast('请选择完整的地区信息');
+      if (!locationDetail) return Api.toast('请输入详细地址');
+      if (!date) return Api.toast('请选择日期');
+      const sh = parseInt(String(document.getElementById('sHour').value||''),10);
+      const sm = parseInt(String(document.getElementById('sMin').value||''),10);
+      if (isNaN(sh) || sh<0 || sh>23) return Api.toast('开始时间的小时数必须在0-23之间');
+      if (isNaN(sm) || sm<0 || sm>59) return Api.toast('开始时间的分钟数必须在0-59之间');
+      const eh = parseInt(String(document.getElementById('eHour').value||''),10);
+      const em = parseInt(String(document.getElementById('eMin').value||''),10);
+      if (isNaN(eh) || eh<0 || eh>23) return Api.toast('结束时间的小时数必须在0-23之间');
+      if (isNaN(em) || em<0 || em>59) return Api.toast('结束时间的分钟数必须在0-59之间');
+      if (!(totalPeople >= 2 && totalPeople <= 10)) return Api.toast('请选择活动人数');
+      if (!description) return Api.toast('请填写详细说明');
+      if (!assertClean(name, '活动名称')) return;
+      if (!assertClean(locationDetail, '详细地址')) return;
+      if (!assertClean(description, '详细说明')) return;
+      if (contact && !assertClean(contact, '联系方式')) return;
+
+      const payload = { id, userId: u.userId, name, type, province, city, area, location: locationDetail, date, begin_time, endtime, contact, totalPeople, description };
+      try {
+        const res = await Api.post('updateActivity', payload);
+        if (res.code !== 0) throw new Error(res.message || '更新失败');
+        Api.toast('已更新');
+        setTimeout(()=> { location.hash = `#/activity?id=${encodeURIComponent(id)}`; }, 600);
+      } catch (e) { Api.toast(e.message || '更新失败'); }
+    };
+  }
+
   async function renderMyActivities() {
     if (!requireLogin()) return;
     app.innerHTML = nav() + `
@@ -1101,12 +1209,15 @@
 
   async function renderUserInfo() {
     if (!requireLogin()) return;
+    // 预加载违禁词表（不阻塞渲染）
+    ensureSensitiveReadySoon();
     app.innerHTML = nav() + `
       <div class="container">
         <div class="card">
           <div class="title">我的资料
             <div class="meta" id="uid_line">用户ID：<code id="uid_text"></code></div>
           </div>
+          <div class="row column"><label class="field-label" for="username_ro">用户名</label><input id="username_ro" class="input" placeholder="用户名" readonly aria-readonly="true" /></div>
           <div class="row column"><label class="field-label" for="nickname">昵称</label><input id="nickname" class="input" placeholder="昵称" /></div>
           <div class="row column"><label class="field-label" for="gender">性别</label>
             <select id="gender" class="input">
@@ -1125,6 +1236,8 @@
     if (!u || !u.userId) return (app.querySelector('.card').innerHTML += '<div class="meta">请先登录</div>');
     const uidText = document.getElementById('uid_text');
     if (uidText) uidText.textContent = u.userId || '';
+    const uNameEl = document.getElementById('username_ro');
+    if (uNameEl) uNameEl.value = u.username || '';
     try {
       const r = await Api.post('getUserPublicInfo', { userId: u.userId });
       if (r.code === 0 && r.data) {
@@ -1165,6 +1278,7 @@
         </div>
       </div>`;
     bindLogout();
+    ensureSensitiveReadySoon();
     document.getElementById('submit').onclick = async () => {
       const u = Api.getUser();
       if (!u || !u.userId) return Api.toast('请先登录');
@@ -1203,6 +1317,7 @@
     bindLogout();
     // 注册页密码显示/隐藏（iOS 安全掩码）
     setupPwdToggle(document.getElementById('reg_password'), document.getElementById('regPwdEye'));
+    ensureSensitiveReadySoon();
     document.getElementById('reg_submit').onclick = async () => {
       const username = document.getElementById('reg_username').value.trim();
       const password = document.getElementById('reg_password').value;

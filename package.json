@@ -3,6 +3,9 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "dev": "wrangler pages dev site --port 3000 --d1 DB=88fed4b4-d315-44de-a9d3-2798e5d76953 --kv SENSITIVE_LEXICON=5730245f6c664d6f9d3f0ff37e04405c --kv AREAS_MAP=69eba1b777ab424b9561f2893d91e2ea",
+    "dev:remote": "wrangler pages dev site --port 3000 --d1 DB=88fed4b4-d315-44de-a9d3-2798e5d76953 --kv SENSITIVE_LEXICON=5730245f6c664d6f9d3f0ff37e04405c --kv AREAS_MAP=69eba1b777ab424b9561f2893d91e2ea",
+    "dev:local": "wrangler pages dev site --port 3000 --persist",
     "build:lexicon": "node scripts/build-lexicon.js",
     "build:areas": "node scripts/build-areas.js",
     "upload:lexicon": "wrangler kv key put --binding=SENSITIVE_LEXICON all.json --path ./dist/lexicon/all.json --content-type application/json",

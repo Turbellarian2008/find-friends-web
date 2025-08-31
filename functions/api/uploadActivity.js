@@ -6,6 +6,31 @@ export async function onRequestPost({ request, env }) {
   const begin = body.begin_time || body.timeSlot; // fallback 兼容
   if (toMin(body.endtime) <= toMin(begin)) return json({ code: 400, message: '结束时间需晚于开始时间' });
 
+  // 违禁词后端校验（兜底）
+  async function hasSensitive(text){
+    if (!text) return false;
+    try {
+      const raw = env && env.SENSITIVE_LEXICON && await env.SENSITIVE_LEXICON.get('all.json');
+      const list = raw ? JSON.parse(raw) : [];
+      const s = String(text).toLowerCase();
+      for (const w of Array.isArray(list)?list:[]) {
+        const ww = String(w||'').toLowerCase();
+        if (ww && s.includes(ww)) return true;
+      }
+    } catch(_){}
+    return false;
+  }
+  const sensPairs = [
+    ['活动名称', body.name],
+    ['详细地址', body.location],
+    ['活动类型', body.type],
+    ['联系方式', body.contact],
+    ['详细说明', body.description]
+  ];
+  for (const [label, val] of sensPairs) {
+    if (await hasSensitive(val)) return json({ code: 422, message: `${label}包含违禁词，请修改后再提交` });
+  }
+
   const now = Date.now();
   const creatorId = String(body.creatorId || '').trim();
   if (!creatorId) return json({ code: 401, message: '缺少创建者ID（creatorId）' });

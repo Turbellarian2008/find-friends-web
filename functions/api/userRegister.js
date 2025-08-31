@@ -14,6 +14,8 @@ export async function onRequestPost({ request, env }) {
     if (password.length < 6 || password.length > 20) return json({ code: 400, message: '密码长度需在6-20个字符之间' });
     if (iphone_num && !/^\d{11}$/.test(iphone_num)) return json({ code: 400, message: '手机号需为11位数字' });
 
+    // 已移除：用户名违禁词校验
+
     const dup = await env.db.prepare('SELECT id FROM users WHERE username = ?').bind(username).first();
     if (dup) return json({ code: 409, message: '用户名重复' });
 
